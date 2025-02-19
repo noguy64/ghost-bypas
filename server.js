@@ -1,10 +1,13 @@
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'path';
+import axios from 'axios';
+import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware } from 'http-proxy-middleware'
+
 
 const app = express();
-const PORT = process.env.PORT || 18000;
+const PORT = process.env.PORT || 9853;
 
 // Bare Server
 const bareServerProcess = spawn(
@@ -22,14 +25,18 @@ app.use('/bare/', createProxyMiddleware({
   pathRewrite: { '^/bare/': '/' }
 }));
 
+// Static files setup
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Define a route to serve the main HTML file
+// Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
